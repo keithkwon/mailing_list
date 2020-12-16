@@ -1,30 +1,37 @@
+---
+title: Mailing List with Node Express and Heroku
+description: Quick mailing list signup page made with Node Express, MailChimp and deployed with Heroku
+date: 2020/12/16
+meta:
+  - property: og:title
+    content: Mailing List with Node Express and Heroku
+  - property: og:description
+    content: Quick mailing list signup page made with Node Express, MailChimp and deployed with Heroku
+  - property: og:image
+    content: /images/portfolio/2.png
+tags:
+  - Javascript
+  - Node Express
+  - MailChimp
+  - Heroku
+---
+
 # Mailing List
 
 > Make a mailing list subscription page with Node Express. Deployed on Heroku.
 
-
-
-[Check final product here!](https://keith-mailinglist.herokuapp.com/)
-
-
-
-
+[Check final product here!](https://newsletter.keithkwon.dev/)
 
 1. Server with Node Express.
 2. Mailchimp API to send mailing information.
 3. Deployed on Heroku.
+4. Configuring subdomain
 
-![image-20201216014000695](README.assets/image-20201216014000695.png)
+![image-20201216014000695](./mailing_list.assets/image-20201216014000695.png)
 
+![image-20201216014018538](./mailing_list.assets/image-20201216014018538.png)
 
-
-![image-20201216014018538](README.assets/image-20201216014018538.png)
-
-
-
-
-
-## Server with Node Express 
+## Server with Node Express
 
 ### #Express #Node
 
@@ -41,41 +48,33 @@
    const bodyParser = require("body-parser");
    const request = require("request");
    const path = require("path");
-   
+
    const app = express();
    const port = 3000;
-   
+
    app.use(express.static("public"));
-   
+
    app.listen(port, () => {
      console.log("listening");
    });
-   
+
    app.get("/", (req, res) => {
      res.sendFile(path.join(__dirname, "/signup.html"));
    });
-   
    ```
 
-   
+4) Static Files
 
-4. Static Files
+![image-20201216014104443](./mailing_list.assets/image-20201216014104443.png)
 
-
-
-![image-20201216014104443](README.assets/image-20201216014104443.png)
-
-CSS and image file is gone when we check on localhost:3000. This is because those files were local. We need to change them to static files in order to send them. 
+CSS and image file is gone when we check on localhost:3000. This is because those files were local. We need to change them to static files in order to send them.
 
 ```js
 //index.js
 app.use(express.static("public"));
-
 ```
 
-![image-20201216014830117](README.assets/image-20201216014830117.png)
-
-
+![image-20201216014830117](./mailing_list.assets/image-20201216014830117.png)
 
 ```html
 <link href="css/signup.css" rel="stylesheet" />
@@ -83,15 +82,11 @@ app.use(express.static("public"));
 
 Change the url to relative url starting from 'Public' folder.
 
-
-
 ```css
-  background-image: url("../image/bg.jpg");
+background-image: url("../image/bg.jpg");
 ```
 
 In case of CSS, starting from the CSS file to destination
-
-
 
 ```CSS
 @font-face {
@@ -111,10 +106,9 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 5. POST and Parse
 
    ```js
-   app.use(bodyParser.urlencoded({extended:true}))
+   app.use(bodyParser.urlencoded({ extended: true }));
    // if you don't use bodyParser `req.body` returns undefined.
-   
-   
+
    app.post("/", (req, res) => {
      console.log(req.body);
      const firstName = req.body.firstName;
@@ -123,10 +117,6 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
    });
    ```
 
-
-
-
-
 ### Notes
 
 ### #static files #bodyParser
@@ -134,45 +124,36 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 1. Static files
 2. `app.use(bodyParser.urlencoded({extended:true}))` What is bodyParser? urlencoded? and extended? Why do we need to install it if it is so fundamental?
 
-
-
 ---
-
-
 
 ## MailChimp API
 
 > [MailChimp Quickstart](https://mailchimp.com/developer/guides/marketing-api-quick-start/)
 
-1. You can control your mail list for marketing purpose. 
+1. You can control your mail list for marketing purpose.
 2. Lists/Audience means a group. Member/contact means a person.
 3. You can create one list if you're a free tier user, and add members to it.
-4. They have their own package to make things easy `npm install @mailchimp/mailchimp_marketing`. 
-
-
+4. They have their own package to make things easy `npm install @mailchimp/mailchimp_marketing`.
 
 ### Flow
 
-
-
-1. Use the boilerplate code to check if its ok, but first you need to set `"type":"module"` at package.json to import stuffs. 
+1. Use the boilerplate code to check if its ok, but first you need to set `"type":"module"` at package.json to import stuffs.
 
    ```js
    import mailchimp from "@mailchimp/mailchimp_marketing";
-   // this part does not work on normal package. 
-   
+   // this part does not work on normal package.
+
    mailchimp.setConfig({
      apiKey: "longnumbersofAPIkey",
      server: "us00",
    });
-   
+
    async function run() {
      const response = await mailchimp.ping.get();
      console.log(response);
    }
-   
+
    run();
-   
    ```
 
 2. After testing, you can add to the mailing list with
@@ -180,12 +161,12 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
    ```js
    const mailchimp = require("@mailchimp/mailchimp_marketing");
    const listId = "You can find it at MailChimp";
-   
+
    mailchimp.setConfig({
      apiKey: "api",
      server: "us00",
    });
-   
+
    app.post("/", (req, res) => {
      console.log(req.body);
      const firstName = req.body.firstName;
@@ -196,7 +177,7 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
        lastName: lastName,
        email: emailAddress,
      };
-   
+
      async function run() {
        try {
          const response = await mailchimp.lists.addListMember(listId, {
@@ -216,14 +197,10 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
          res.sendFile(__dirname + "/failure.html");
        }
      }
-   
+
      run();
-   
+
    ```
-
-   
-
-
 
 ### Notes
 
@@ -233,32 +210,32 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
 2. AsyncFunction
 
-   > Newer way to implement promise and callback functions. 
+   > Newer way to implement promise and callback functions.
 
    ```js
    function resolveAfter2Seconds() {
-     return new Promise(resolve => {
+     return new Promise((resolve) => {
        setTimeout(() => {
-         resolve('resolved');
+         resolve("resolved");
        }, 2000);
      });
    }
-   
+
    async function asyncCall() {
-     console.log('calling');
+     console.log("calling");
      const result = await resolveAfter2Seconds();
      console.log(result);
      // expected output: "resolved"
    }
-   
+
    asyncCall();
-   
+
    //Using await inside aync function allows you to write cleaner style promises
    ```
 
    ```js
    //How to use then/catch -> try/catch
-   
+
    async function logTodoTitle() {
      try {
        var user = await fetchUser();
@@ -274,7 +251,7 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
 3. Promise
 
-   > **“A promise is an object that may produce a single value some time in the future”** . An object used for asynchronous . 
+   > **“A promise is an object that may produce a single value some time in the future”** . An object used for asynchronous .
 
 4. Asynchronous / Callback
 
@@ -282,7 +259,7 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
 > Cloud platform as a service (Paas) started in 2007, initially only supported Ruby. Now supports Java, Node.js, Scala, Clojure, Python, PHP and Go. Acquired by Salesforce in 2012. The name "Heroku" is a portmanteau of "heroic" and "haiku". The Japanese theme is a nod to Matz for creating Ruby. [Wikipedia](https://en.wikipedia.org/wiki/Heroku)
 
-### Flow 
+### Flow
 
 1. First install heroku cli
 
@@ -292,18 +269,16 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
    ```js
    const port = process.env.PORT;
-   
+
    app.listen(port || 3000, () => {
      console.log("listening");
    });
    //The || lets you allow locally and deployed
    ```
 
-   
+3) Create procfile
 
-3. Create procfile
-
-   ![image-20201216153443140](README.assets/image-20201216153443140.png)
+   ![image-20201216153443140](./mailing_list.assets/image-20201216153443140.png)
 
    ```js
    //Procfile
@@ -312,69 +287,93 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
    This step might not be necessary anymore.
 
-4. You can either push directly to heroku or use github to deploy. I'll try using github.
+4) You can either push directly to heroku or use github to deploy. I'll try using github.
 
-5. Make repository and push to github. Go to heroku app and integrate with repository, deployment is easy but
-
-
+5) Make repository and push to github. Go to heroku app and integrate with repository, deployment is easy but
 
 ### .env files and API_KEYS
 
-### #.env 
+### #.env
 
-As soon as I pushed, my API_KEYS which were included in the index.js file was compromised and disabled. I should never do this again. I had to find a way around. 
+As soon as I pushed, my API_KEYS which were included in the index.js file was compromised and disabled. I should never do this again. I had to find a way around.
 
 `npm i dotenv`
 
 ```javascript
-
-
-require('dotenv').config();
+require("dotenv").config();
 
 mailchimp.setConfig({
   apiKey: process.env.API_KEY,
   server: "us18",
 });
-
-
 ```
 
 ```javascript
 // .env file
-API_KEY="98c71dummydatacc43bb3164354e-us18"
+API_KEY = "98c71dummydatacc43bb3164354e-us18";
 ```
 
 but how to use it deployed?
 
 First try
 
-![image-20201216163102539](README.assets/image-20201216163102539.png)
-
-
+![image-20201216163102539](./mailing_list.assets/image-20201216163102539.png)
 
 ```
 Error: Unauthorized
 ```
 
-
-
 Second try
 
-![image-20201216163444271](README.assets/image-20201216163444271.png)
-
-
+![image-20201216163444271](./mailing_list.assets/image-20201216163444271.png)
 
 Finally works!!!
 
+![image-20201216163808066](./mailing_list.assets/image-20201216163808066.png)
 
-
-![image-20201216163808066](README.assets/image-20201216163808066.png)
-
-![image-20201216164854672](README.assets/image-20201216164854672.png)
-
-
+![image-20201216164854672](./mailing_list.assets/image-20201216164854672.png)
 
 Sent my first newsletter to my friends!
+
+
+
+## Configuring my subdomain to use on Heroku appp
+
+### #subdomain #cname
+
+> You can make subdomains and give to independent websites. ex) blog.keithkwon.dev,  newsletter.keithkwon.dev ...I configured so that `newsletter.keithkwon.dev` will point to my new heroku app
+
+[stackoverflow](https://stackoverflow.com/questions/56861540/cannot-connect-heroku-to-custom-google-domain)
+
+[gabebw](https://gabebw.com/blog/2016/06/06/how-to-host-sites-on-a-subdomain-with-heroku)
+
+
+
+ ### Flow
+
+1. Upgrade to paid user in Heroku, necessary for auto SSL.
+
+2. Allow subdomain by Heroku console.
+
+   ![image-20201216233551821](./mailing_list.assets/image-20201216233551821.png)
+
+   ```
+   heroku domains:add cool.tutorial.com
+   ```
+
+   May not be necessary.
+
+   
+
+3. Register for auto SSL on Heroku and add custom domain
+
+   ![image-20201216233624102](./mailing_list.assets/image-20201216233624102.png)
+
+4. Configure CNAME on google domain
+
+   ![image-20201216233852029](./mailing_list.assets/image-20201216233852029.png)
+
+
 
 
 
@@ -386,4 +385,5 @@ Sent my first newsletter to my friends!
 2. What does process.env have?
 3. What is a websocket?
 4. How to use .env files
-5. What is github actions? 
+5. What is github actions?
+6. About Hosting : ANAME CNAME DNS SSL Synthetic Records, Custom Resource Records, DNSSEC, NAME SERVERS
