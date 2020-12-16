@@ -4,6 +4,12 @@
 
 
 
+[Check final product here!](https://keith-mailinglist.herokuapp.com/)
+
+
+
+
+
 1. Server with Node Express.
 2. Mailchimp API to send mailing information.
 3. Deployed on Heroku.
@@ -192,22 +198,26 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
      };
    
      async function run() {
-       const response = await mailchimp.lists.addListMember(listId, {
-         email_address: subscribingUser.email,
-         status: "subscribed",
-         merge_fields: {
-           FNAME: subscribingUser.firstName,
-           LNAME: subscribingUser.lastName,
-         },
-       });
-       console.log(
-         `Successfully added contact as an audience member. The contact's id is ${response.id}.`
-       );
+       try {
+         const response = await mailchimp.lists.addListMember(listId, {
+           email_address: subscribingUser.email,
+           status: "subscribed",
+           merge_fields: {
+             FNAME: subscribingUser.firstName,
+             LNAME: subscribingUser.lastName,
+           },
+         });
+         console.log(
+           `Successfully added contact as an audience member. The contact's id is ${response.id}.`
+         );
+         res.sendFile(__dirname + "/success.html");
+       } catch (error) {
+         console.log(error);
+         res.sendFile(__dirname + "/failure.html");
+       }
      }
    
      run();
-   });
-   
    
    ```
 
@@ -272,6 +282,8 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
 > Cloud platform as a service (Paas) started in 2007, initially only supported Ruby. Now supports Java, Node.js, Scala, Clojure, Python, PHP and Go. Acquired by Salesforce in 2012. The name "Heroku" is a portmanteau of "heroic" and "haiku". The Japanese theme is a nod to Matz for creating Ruby. [Wikipedia](https://en.wikipedia.org/wiki/Heroku)
 
+### Flow 
+
 1. First install heroku cli
 
    `npm i -g heroku`
@@ -280,9 +292,91 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
    ```js
    const port = process.env.PORT;
+   
+   app.listen(port || 3000, () => {
+     console.log("listening");
+   });
+   //The || lets you allow locally and deployed
    ```
 
    
+
+3. Create procfile
+
+   ![image-20201216153443140](README.assets/image-20201216153443140.png)
+
+   ```js
+   //Procfile
+   web: node index.js
+   ```
+
+   This step might not be necessary anymore.
+
+4. You can either push directly to heroku or use github to deploy. I'll try using github.
+
+5. Make repository and push to github. Go to heroku app and integrate with repository, deployment is easy but
+
+
+
+### .env files and API_KEYS
+
+### #.env 
+
+As soon as I pushed, my API_KEYS which were included in the index.js file was compromised and disabled. I should never do this again. I had to find a way around. 
+
+`npm i dotenv`
+
+```javascript
+
+
+require('dotenv').config();
+
+mailchimp.setConfig({
+  apiKey: process.env.API_KEY,
+  server: "us18",
+});
+
+
+```
+
+```javascript
+// .env file
+API_KEY="98c71dummydatacc43bb3164354e-us18"
+```
+
+but how to use it deployed?
+
+First try
+
+![image-20201216163102539](README.assets/image-20201216163102539.png)
+
+
+
+```
+Error: Unauthorized
+```
+
+
+
+Second try
+
+![image-20201216163444271](README.assets/image-20201216163444271.png)
+
+
+
+Finally works!!!
+
+
+
+![image-20201216163808066](README.assets/image-20201216163808066.png)
+
+![image-20201216164854672](README.assets/image-20201216164854672.png)
+
+
+
+Sent my first newsletter to my friends!
+
+
 
 
 
@@ -290,3 +384,6 @@ font doesn't seem to mind to begin from public folder. Or maybe its cache. Doesn
 
 1. What is Redis? What is PostgreSQL?
 2. What does process.env have?
+3. What is a websocket?
+4. How to use .env files
+5. What is github actions? 
