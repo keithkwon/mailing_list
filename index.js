@@ -8,11 +8,13 @@ const app = express();
 const port = process.env.PORT;
 const listId = "3843cf1264";
 
+require('dotenv').config();
+
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 mailchimp.setConfig({
-  apiKey: "9fd6b65103b9e50d4bedeb04e3933f4e-us18",
+  apiKey: process.env.API_KEY,
   server: "us18",
 });
 
